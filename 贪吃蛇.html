@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        td{
+            width: 10px;
+            height: 10px;
+            background-color: darkkhaki;
+        }
+        .red{
+            background-color: red;
+        }
+        .food{
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+    <script>
+         var snakeArr = [] ;
+         var snakeX = [];
+         var snakeY = [];
+         var foodX;
+         var foodY;
+         var timer = null;
+         var currentDir;
+        function createGrid() {
+       var oTable = document.createElement('table');
+       var oTbody = document.createElement('tbody');
+       for (var i = 0;i < 20;i++){
+        var oTr = document.createElement('tr');
+        snakeArr[i] = [];
+        for(var j = 0;j < 20;j++){
+            var oTd = document.createElement('td');
+            oTr.appendChild(oTd);
+            snakeArr[i][j] = 0;
+        }
+            oTbody.appendChild(oTr);
+       }
+       oTable.appendChild(oTbody);
+       document.body.appendChild(oTable);
+    }
+    function creatSnake() {
+        snakeArr[2][3] = 1;
+        snakeX.push(2);
+        snakeY.push(3);
+    }
+    function creatFood() {
+        var x = Math.floor(Math.random()*19);
+        var y = Math.floor(Math.random()*19);
+        if ( snakeArr[x][y] == 1) {
+            creatFood();
+        }
+        snakeArr[x][y] = 2;
+        foodX = x;
+        foodY = y;
+    }
+    
+    function render() {
+        for (var i = 0;i < snakeArr.length;i++){
+            for (var j = 0;j < snakeArr[i].length;j++) {
+                var oTr = document.getElementsByTagName('tr')[i];
+                var oTd = oTr.getElementsByTagName('td')[j];
+                if (snakeArr[i][j] == 1) {
+                    oTd.className = 'red';
+                }else if (snakeArr[i][j] == 2) {
+                    oTd.className = 'food';
+                }
+                else{
+                    oTd.classList.remove('red');
+                    oTd.classList.remove('food');
+                }
+            }
+        }
+    }
+    function setSnakeArray() {
+        for (var i = 0;i < 20;i++){
+            for (var j = 0;j < 20;j++){
+                if (snakeArr[i][j] == 1){
+                    snakeArr[i][j] = 0
+                }
+            }
+        }
+        for(var i = 0;i < snakeX.length;i++) {
+            snakeArr[snakeX[i]][snakeY[i]] = 1;
+        }
+
+    }
+    function move(dir) {
+        if (dir == 'left') {
+            currentDir = 'left';
+            snakeX.push(snakeX[snakeX.length - 1]);
+            snakeY.push(snakeY[snakeY.length - 1] - 1);
+        }
+        if (dir == 'up'){
+            currentDir = 'up'
+             snakeY.push (snakeY[snakeY.length - 1]);
+             snakeX.push(snakeX[snakeX.length - 1] - 1);;
+        }
+        if (dir == 'right') {
+            currentDir = 'right';
+            snakeX.push(snakeX[snakeX.length - 1]);
+             snakeY.push(snakeY[snakeY.length-1] + 1);
+        }
+        if (dir == 'down') {
+            currentDir = 'down';
+            snakeY.push (snakeY[snakeY.length - 1]);
+            snakeX.push(snakeX[snakeX.length - 1] + 1);
+        }
+        if (isEat()){
+            creatFood();
+        } else {
+            snakeY.shift();
+            snakeX.shift();
+        }
+        if (isCrash() || isEatSelf()) {
+            document.onkeydown = null
+            window.location.reload()
+            return
+        }
+        setSnakeArray();
+        render();
+    }
+    function isEat() {
+        if (snakeX[snakeX.length -1] == foodX && snakeY[snakeY.length - 1] ==foodY){
+            return true;
+        }else {
+            return false;
+        }
+    }
+    function isCrash() {
+        if (snakeX[snakeX.length - 1] < 0 || snakeX[snakeX.length - 1] > 19 || snakeY[snakeY .length - 1]< 0 || snakeY [snakeY.length - 1] > 19) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+    function isEatSelf() {
+        if(snakeArr[snakeX[snakeX.length - 1]][snakeY[snakeY.length - 1]] ==1) {
+           return true;
+        }else {
+            return false;
+        }
+    }
+    createGrid();
+    creatSnake();
+    creatFood();
+    render();
+    document.onkeydown = function(event) {
+        if (event.keyCode == 37 && currentDir !== 'right'){
+            clearInterval(timer)
+            timer = setInterval(function() {
+                 move('left') 
+            }, 300);
+        }
+        if(event.keyCode == 38 && currentDir !== 'down') {
+            clearInterval(timer)
+            timer = setInterval(function() {
+                 move('up');
+            },300);
+        }
+        if(event.keyCode == 39 &&currentDir !== 'left') {
+            clearInterval(timer)
+            timer = setInterval(function(){
+                 move('right');
+            },300);
+        }
+        if (event.keyCode == 40 && currentDir !== 'up') {
+            clearInterval(timer)
+            timer = setInterval(function() {
+                 move('down');
+            }, 300);
+        }
+    }
+
+    </script>
+</body>
+</html>

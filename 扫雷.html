@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .leiqu{
+            position: relative;
+            margin: 1px 1px;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: aqua;
+        }
+        .leiqu .lei {
+            position: absolute;
+            top:0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            z-index: 50;
+            opacity: 0;
+            background-color: black;
+        }
+        .leiqu .num {
+            position: absolute;
+            top:0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            text-align: center;
+            line-height: 10px;
+            z-index: 50;
+            background-color: #fff;
+        }
+        .leiqu .qi {
+            position: absolute;
+            top:0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background-color:red; 
+            z-index: 50;
+        }
+        .leiqu .empty {
+            top:0;
+            left: 0;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ccc;
+            z-index: 100;
+        }
+        #gai {
+            width: 800px;
+            height: 800px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id='gai'>
+    </div>
+    <div class='clean'>
+        <div class="rank">
+            <div id='leiqu_{id}' class="leiqu">
+                <div class="num" id="num_{id}"></div>
+                <div class="lei" onclick="dead()" id="lei_{id}" oncontextmenu="chaqi(event, {id})"></div>
+                <div class="qi" id="qi_{id}" oncontextmenu="cancelQi(event, {id})" ></div>
+                <div class="empty" onclick="clickOne({id})" id="empty_{id}" oncontextmenu="chaqi(event, {id})"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        var firstclick = true;
+        var leiArr = []
+        var gai = document.getElementById('gai') 
+        function cancelQi (event, n) {
+            if(event.preventDefault){
+                event.preventDefault();
+            }else {
+                window.event.returnValue = false;
+            }
+            var qi = document.getElementById('qi_' + n)
+            qi.style.zIndex = 50
+        }
+        function chaqi(event, n) {
+            if(event.preventDefault){
+                event.preventDefault();
+            }else {
+                window.event.returnValue = false;
+            }
+            var qi = document.getElementById('qi_' + n);
+            qi.style.zIndex = 130;
+            win()
+        }       
+        function dead() {
+            for (var i = 0;i < 400;i++){
+                var lei = document.getElementById('lei_' + i);
+                lei.style.opacity = 1;
+            }
+            gai.style.zIndex = 200;
+            console.log('sile')
+        }
+        function creatblock() {
+          var oDiv = document.getElementsByClassName('leiqu')[0];
+          var oRank = document.getElementsByClassName('rank')[0];
+          var oClean = document.getElementsByClassName('clean')[0]
+          var reg = new RegExp('{id}','g');
+          for (var j = 0;j < 20; j++) {
+              var rank = []
+            for (var i = j*20; i <(j+1) *20;i++) {
+                var _html = oRank.innerHTML.replace(reg ,i).replace(/^\s*/,'').replace(/\s*$/,'');
+                rank.push(_html); 
+            }
+            var div = document.createElement('div');
+            div.className = 'rank'
+            div.innerHTML = rank.join('')
+            oClean.appendChild(div)
+          };
+          oClean.removeChild(oRank) 
+     }       
+     function clickOne (n) {
+         if (firstclick){
+            firstclick = false;
+            if (n%20 == 0) {
+                var noleiArr = [n-20,n-20+1, n,n+1,n+20,n+20+1];
+            }else if(n%20 == 19) {
+                var noleiArr = [n-20,n-20-1, n,n-1,n+20,n+20-1];
+            }else {
+                var noleiArr = [n-20-1,n-20,n-20+1,n-1,n, n+1,n+20-1,n+20,n+20+1];
+            }
+            for (var i =0;i < 400;i++) {
+                if (!noleiArr.inArray(i)) {
+                     leiArr.push(i);
+                }
+            }
+            bulei(leiArr, 5);
+            clickOne(n)
+         }else{
+            var num = document.getElementById('num_' + n);
+            num.style.zIndex = 110;
+            num.innerHTML = leishu(n)
+            if (num.innerHTML == '') {
+                liansuo(n);
+            }
+            win()
+         }
+     }
+     function liansuo(n) {
+        var liansuoArr = [];
+        if (n%20 == 0) {
+            liansuoArr = [n-20+1,n-20,n+1,n+20,n+20+1]
+        }else if(n%20 == 19) {
+            liansuoArr = [n-20-1,n-20,n-1,n+20,n+20-1]
+        }else {
+            liansuoArr = [n-20-1,n-20,n-20+1,n-1,n+1,n+20-1,n+20,n+20+1]
+        }
+        for(var i = 0;i < liansuoArr.length;i++){
+            var numTwo = document.getElementById('num_' + liansuoArr[i])
+            if(liansuoArr[i] >= 0 && liansuoArr[i] <= 399){
+                numTwo.innerHTML = leishu(liansuoArr[i])
+                if(numTwo.style.zIndex != 110){
+                    numTwo.style.zIndex = 110
+                    clickOne(liansuoArr[i])
+                }
+            }
+        }
+     }
+     function leishu (n) {
+        var countArr = [];
+        var leiNum = 0;
+        if (n%20 == 0) {
+            countArr = [n-20,n-20+1,n,n+1,n+20,n+20+1];
+        }else if (n%20 == 19) {
+            countArr = [n-20,n-20-1,n-1,n,n+20,n+20-1];
+        }else {
+            countArr = [n-20-1,n-20,n-20+1,,n-1,n,n+1,n+20-1,n+20,n+20+1];
+        }
+        for (var i = 0;i < countArr.length ;i++) {
+            var lei = document.getElementById('lei_' + countArr[i]);
+            if(countArr[i] >= 0 && countArr[i] <= 399){
+                if (lei.style.zIndex == 120) {
+                    leiNum += 1
+                }
+            }
+        }
+        return leiNum == 0 ? '' : leiNum
+     }
+     function bulei (leiArr, num) {
+         for (var i = 0;i < num;i++) {
+            var random =Math.floor( Math.random()*(leiArr.length-1));
+            var lei = document.getElementById('lei_' + random);
+            console.log(lei)
+            lei.style.zIndex = 120;
+            leiArr.splice(random, 1);
+        }
+     }
+     function win () {
+        var lastNum = []
+        var lastLei = []
+        var lastQi = []
+        for (var i = 0; i < 400; i++) {
+            var num = document.getElementById('num_' + i)
+            var lei = document.getElementById('lei_' + i)
+            var qi = document.getElementById('qi_' + i)
+            if (num.style.zIndex != 110) {
+                lastNum.push(i)
+            }
+            if (lei.style.zIndex == 120) {
+                lastLei.push(i)
+            }
+            if (qi.style.zIndex == 130) {
+                lastQi.push(i)
+            }
+        }
+        if (lastLei.join() == lastNum.join() || lastLei.join() == lastQi.join()) {
+            gai.style.zIndex = 200
+            console.log('win')
+        }
+     }
+     Array.prototype.inArray = function (val) {
+        for (var i = 0;i < this.length;i++) {
+            if(this[i] == val){
+                return true
+            }
+        }
+        return false;
+     }
+          creatblock();
+    </script>
+</body>
+</html>
